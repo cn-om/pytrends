@@ -283,17 +283,21 @@ class TrendReq(object):
             return df
 
         # rename the column with the search keyword
-        df = df[['geoName', 'geoCode', 'value']].set_index(
-            ['geoName']).sort_index()
+        try:
+            df=df[['geoName', 'geoCode', 'value']].set_index(['geoName'])
+        except:
+            df=df[['geoName', 'value']].set_index(['geoName']).sort_index()
         # split list columns into seperate ones, remove brackets and split on comma
-        result_df = df['value'].apply(lambda x: pd.Series(
+        result_df=df['value'].apply(lambda x: pd.Series(
             str(x).replace('[', '').replace(']', '').split(',')))
-        if inc_geo_code:
-            result_df['geoCode'] = df['geoCode']
-
+        try:
+            if inc_geo_code:
+                result_df['geoCode']=df['geoCode']
+        except:
+            pass
         # rename each column with its search term
         for idx, kw in enumerate(self.kw_list):
-            result_df[kw] = result_df[idx].astype('int')
+            result_df[kw]=result_df[idx].astype('int')
             del result_df[idx]
 
         return result_df
